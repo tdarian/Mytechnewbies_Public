@@ -1,0 +1,723 @@
+@{
+
+    Layout = "~/shared/_Layout.cshtml";
+    using (var db = Database.Open("Projectfriends"))
+    {
+        int vblidprofile = UrlData[0].AsInt();
+        if (vblidprofile == 0)
+        {
+            Response.Redirect("~/", false);
+            return;
+        }
+
+
+        bool regexist = false;
+        int vbladmin = 0;
+        if (Request.Cookies["newbiecookie"] != null)
+        {
+            var rsreg = db.QuerySingle("select * from signin where idreg =@0 or (signin.idreg =@0 and signin.admin = 1)", Request.Cookies["newbiecookie"].Value.AsInt());
+
+            if (rsreg != null)
+            {
+                vbladmin = rsreg.admin;
+                if (vblidprofile == rsreg.idreg)
+                {
+                    regexist = true;
+                }
+
+            }
+        }//if the id is 0 to redirect to homepage
+
+
+
+
+        //var rsprof = db.QuerySingle("select idreg, firstname, lastname, regemail,degree, gpa, graddate, deginfo, coursenumber, profcolor,profimage,phonenum1,phonenum2,phonenum3,profresume, country1,country2,country3,city1,city2,city3,jobtitle1,jobtitle2,jobtitle3, startdate1,startdate2,startdate3,enddate1,enddate2,enddate3,jobdes1,jobdes2,jobdes3,currentcountry,currentcity from signin  INNER JOIN profile ON signin.idreg = profile.idregprof where signin.idreg=@0", vblidprofile);
+        var rsprof = db.QuerySingle("select signin.*, profile.* from signin INNER JOIN profile ON signin.idreg = profile.idregprof where signin.idreg=@0", vblidprofile);
+        var rsregproj = db.QuerySingle("select signin.*, project.* from signin LEFT JOIN project ON signin.idreg = project.idregjob where signin.idreg=@0", vblidprofile);
+        var rsregskill = db.QuerySingle("select signin.*, profile.*, skills.* from signin INNER JOIN profile ON signin.idreg = profile.idregprof LEFT JOIN skills ON profile.idregprof = skills.idskill where signin.idreg=@0", vblidprofile);
+        var rsregextra = db.QuerySingle("select signin.*, profile.*, extracur.* from signin INNER JOIN profile ON signin.idreg = profile.idregprof LEFT JOIN extracur ON profile.idregprof = extracur.idregextra where signin.idreg=@0", vblidprofile);
+        Page.Title = rsprof.firstname + " " + rsprof.lastname + " - " + rsprof.degree;
+        Page.robots = "All";//this means robots can search this page
+        Page.description = rsprof.deginfo;
+        Page.keywords = rsregskill.softwareskills + ", " + rsregskill.hardwareskills;
+
+
+
+        if (rsprof != null && rsregproj != null && rsregskill != null)
+        {
+
+            var vblfirstname = rsprof.firstname;
+            var vbllastname = rsprof.lastname;
+            var vblemail = rsprof.regemail;
+            var vbldegree = rsprof.degree;
+            var vblgpa = rsprof.gpa;
+            var vblcoursenum = rsprof.coursenumber;
+            var vblsummary = rsprof.deginfo;
+            var vblphonenum1 = rsprof.phonenum1;
+            var vblphonenum2 = rsprof.phonenum2;
+            var vblphonenum3 = rsprof.phonenum3;
+            var vblcurrentcountry = rsprof.currentcountry;
+            var vblcurrentcity = rsprof.currentcity;
+            var vblgraddate = rsprof.graddate;
+            var vblcountry1 = rsprof.country1;
+            var vblcountry2 = rsprof.country2;
+            var vblcountry3 = rsprof.country3;
+            var vblcountry4 = rsprof.country4;
+            var vblcity1 = rsprof.city1;
+            var vblcity2 = rsprof.city2;
+            var vblcity3 = rsprof.city3;
+            var vblcity4 = rsprof.city4;
+            var vbljobtitle1 = rsprof.jobtitle1;
+            var vbljobtitle2 = rsprof.jobtitle2;
+            var vbljobtitle3 = rsprof.jobtitle3;
+            var vbljobtitle4 = rsprof.jobtitle4;
+            var vblstartdate1 = rsprof.startdate1;
+            var vblstartdate2 = rsprof.startdate2;
+            var vblstartdate3 = rsprof.startdate3;
+            var vblstartdate4 = rsprof.startdate4;
+            var vblenddate1 = rsprof.enddate1;
+            var vblenddate2 = rsprof.enddate2;
+            var vblenddate3 = rsprof.enddate3;
+            var vblenddate4 = rsprof.enddate4;
+            var vbljobdes1 = rsprof.jobdes1;
+            var vbljobdes2 = rsprof.jobdes2;
+            var vbljobdes3 = rsprof.jobdes3;
+            var vbljobdes4 = rsprof.jobdes4;
+            var vblcompany1 = rsprof.company1;
+            var vblcompany2 = rsprof.company2;
+            var vblcompany3 = rsprof.company3;
+            var vblcompany4 = rsprof.company4;
+            var vblfullstudent = rsprof.fullstudent;
+            var vblpartstudent = rsprof.partstudent;
+            var vblintern = rsprof.intern;
+            var vbllooking = rsprof.looking;
+            var vblcoop = rsprof.coop;
+            var vblminor = rsprof.minor;
+            var vblpresent1 = rsprof.present1;
+            var vblpresent2 = rsprof.present2;
+            var vblpresent3 = rsprof.present3;
+            var vblpresent4 = rsprof.present4;
+            var vblaccounting = rsprof.accounting;
+            var vblentrepre = rsprof.entre;
+            var vblfinance = rsprof.finance;
+            var vblhr = rsprof.hr;
+            var vblinternational = rsprof.international;
+            var vblmanagement = rsprof.management;
+            var vbloperations = rsprof.operations;
+            var vblmarketing = rsprof.marketing;
+            var vblstrategic = rsprof.strategic;
+
+            var vblprojectname1 = rsregproj.projectname1;
+            var vblprojectname2 = rsregproj.projectname2;
+            var vblprojectname3 = rsregproj.projectname3;
+            var vblprojstartdate1 = rsregproj.projstartdate1;
+            var vblprojstartdate2 = rsregproj.projstartdate2;
+            var vblprojstartdate3 = rsregproj.projstartdate3;
+            var vblprojenddate1 = rsregproj.projenddate1;
+            var vblprojenddate2 = rsregproj.projenddate2;
+            var vblprojenddate3 = rsregproj.projenddate3;
+            var vblprojdes1 = rsregproj.projdes1;
+            var vblprojdes2 = rsregproj.projdes2;
+            var vblprojdes3 = rsregproj.projdes3;
+            var vblprojtype1 = rsregproj.projtype1;
+            var vblprojtype2 = rsregproj.projtype2;
+            var vblprojtype3 = rsregproj.projtype3;
+            var vblprojcourse1 = rsregproj.projcourse1;
+            var vblprojcourse2 = rsregproj.projcourse2;
+            var vblprojcourse3 = rsregproj.projcourse3;
+            var vblprojpresent1 = rsregproj.projpresent1;
+            var vblprojpresent2 = rsregproj.projpresent2;
+            var vblprojpresent3 = rsregproj.projpresent3;
+
+            var vblschool = rsprof.school;
+            var vblextrastartdate1 = rsregextra.extrastartdate1;
+            var vblextrastartdate2 = rsregextra.extrastartdate2;
+            var vblextrastartdate3 = rsregextra.extrastartdate3;
+            var vblextraenddate1 = rsregextra.extraenddate1;
+            var vblextraenddate2 = rsregextra.extraenddate2;
+            var vblextraenddate3 = rsregextra.extraenddate3;
+            var vblextratitle1 = rsregextra.extratitle1;
+            var vblextratitle2 = rsregextra.extratitle2;
+            var vblextratitle3 = rsregextra.extratitle3;
+            var vblextracompany1 = rsregextra.extracompany1;
+            var vblextracompany2 = rsregextra.extracompany2;
+            var vblextracompany3 = rsregextra.extracompany3;
+            var vblextrades1 = rsregextra.extrades1;
+            var vblextrades2 = rsregextra.extrades2;
+            var vblextrades3 = rsregextra.extrades3;
+            var vblextrapresent1 = rsregextra.extrapresent1;
+            var vblextrapresent2 = rsregextra.extrapresent2;
+            var vblextrapresent3 = rsregextra.extrapresent3;
+
+<div class="container">
+
+    @if (regexist || vbladmin == 1)
+    {
+        <a role="button" href="@Href("~/skills/" + vblidprofile )" class="btn btn-outline-info">Technical & Language Skills</a>
+        <a role="button" href="@Href("~/editprofile/" + vblidprofile)" class="btn btn-outline-info">Personal Profile</a>
+        <a role="button" href="@Href("~/jobexp/" + vblidprofile)" class="btn btn-outline-info">Job Experience</a>
+        <a role="button" href="@Href("~/projectexp/" +vblidprofile)" class="btn btn-outline-info">Project Experience</a>
+        <a role="button" href="@Href("~/extracur/" +vblidprofile)" class="btn btn-outline-info">Extracurricular</a>
+        <a role="button" href="@Href("~/references/" +vblidprofile)" class="btn btn-outline-info">References</a>
+        <a role="button" href="@Href("~/profile/" + vblidprofile)" class="btn btn-info">Profile</a>
+        <br />
+        <div class="dropdown mt-2">
+            <button class="btn btn-outline-info dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Print This Resume
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" rel="nofollow" href="@Href("~/print/" +vblidprofile)" target="blank">With Picture</a>
+                <a class="dropdown-item" rel="nofollow" href="@Href("~/print/" + vblidprofile + "/1")" target="blank">Without Picture</a>
+            </div>
+        </div>
+    }
+
+    <br /><br />
+    <h1 class=" @rsprof.profcolor"> @vblfirstname @vbllastname </h1>
+    @if (rsprof.profimage != null)
+    {
+        <img src="@Href("~/images/"+rsprof.profimage)" class="img-fluid img-thumbnail rounded-circle mb-2" alt="Responsive image" />
+    }
+        <h5>
+            @vbldegree @if (rsprof.minor != null && rsprof.minor != "Choose a Minor" && rsprof.minor != "")
+            {<span>- Minor in @vblminor</span>}
+            @if (vbldegree == "Bachelor of Business Administration")
+            {
+                if (vblaccounting == "1")
+                {
+                    <h4 class="badge badge-info">Accouting</h4>
+                }
+                if (vblentrepre == "1")
+                {
+                    <h4 class="badge badge-info">Entrepreneurship & Innovation</h4>
+                }
+                if (vblfinance == "1")
+                {
+                    <h4 class="badge badge-info">Finance</h4>
+                }
+                if (vblhr == "1")
+                {
+                    <h4 class="badge badge-info">Human Resource Management</h4>
+                }
+                if (vblinternational == "1")
+                {
+                    <h4 class="badge badge-info">International Business</h4>
+                }
+                if (vblmanagement == "1")
+                {
+                    <h4 class="badge badge-info">Management Information Systems</h4>
+                }
+                if (vbloperations == "1")
+                {
+                    <h4 class="badge badge-info">Operations Management</h4>
+                }
+                if (vblmarketing == "1")
+                {
+                    <h4 class="badge badge-info">Marketing</h4>
+                }
+                if (vblstrategic == "1")
+                {
+                    <h4 class="badge badge-info">Strategic Analysis</h4>
+                }
+            }
+        </h5>
+    @if (rsprof.school != null && rsprof.school != "University")
+    {
+        <h5>@vblschool</h5>
+    }
+    @*this is a page within a page so that search engines wont pick up the information or robots*@
+    <iframe rel="nofollow" src="@Href("~/profiledata/" + vblidprofile)" style="height:35px; width:350px; overflow: hidden; border-width:0px; vertical-align:top" scrolling="no"></iframe>
+
+
+
+    @* <h5>
+            @if (vblphonenum1 != null && vblphonenum1 != "")
+            {
+                <span class=" @rsprof.profcolor">Phone:</span><span> @vblphonenum1-@vblphonenum2-@vblphonenum3</span>
+            }
+        </h5>*@
+    <h5>
+        @if (vblcurrentcountry != null && vblcurrentcountry != "" && vblcurrentcity != null && vblcurrentcity != "")
+        {
+            <span class=" @rsprof.profcolor">Current Residence:</span><span> @vblcurrentcity, @vblcurrentcountry</span>
+        }
+    </h5>
+
+
+
+    @if (vblgpa != "" && vblgpa != null)
+    {
+        <h5> GPA: <span class="badge badge-info">@vblgpa</span></h5>
+
+    }
+    @if (vblfullstudent == "1")
+    {
+        <h6 class="badge badge-info">Full-Time Student</h6>
+    }
+    @if (vblpartstudent == "1")
+    {
+        <h6 class="badge badge-info">Part-Time Student</h6>
+    }
+
+    @if (vblintern == "1")
+    {
+        <h6 class="badge badge-info">On Co-op</h6>
+    }
+
+    @if (vbllooking == "1")
+    {<h6 class="badge badge-info">Looking for Full-Time positions</h6>}
+
+    @if (vblcoop == "1")
+    {<h6 class="badge badge-info">Looking for Co-op positions</h6>}
+    @if (vblcoursenum == "Graduated")
+    {
+        <h6>Graduated</h6>
+    }
+    else
+    {
+        if (vblgraddate != null)
+        { <h6 class=" @rsprof.profcolor"> Graduation Date: @rsprof.graddate.ToString("MMM d, yyyy") </h6>}
+
+    if (vblcoursenum != null && vblcoursenum != "Choose a number/graduated")
+    { <h6>Courses left before graduation:<span class="badge badge-info"> @vblcoursenum</span></h6>}
+
+
+}
+    @* @if (vblexplevel != null && vblexplevel != "Experience Level")
+        {<h5 class="@rsprof.profcolor">@vblexplevel</h5> }*@
+
+    <p class="text-justify">@vblsummary</p>
+
+    <!--Skills-->
+    <hr style="background-color:@rsprof.profcolor" />
+    @if (((rsregskill.softwareskills != null && rsregskill.softwareskills != "") || (rsregskill.softothers != null && rsregskill.softothers != "")) || ((rsregskill.hardwareskills != null && rsregskill.hardwareskills != "") || (rsregskill.hardothers != null && rsregskill.hardothers != "")) || ((rsregskill.languageskills != null && rsregskill.languageskills != "") || (rsregskill.langothers != null && rsregskill.langothers != "")))
+    {<h3 class="@rsprof.profcolor">Skills</h3>
+        if (regexist || vbladmin == 1)
+        { <a role="button" href="@Href("~/skills/" + vblidprofile )" class="btn btn-outline-info">Skills</a>}
+        if ((rsregskill.languageskills != null && rsregskill.languageskills != "") || (rsregskill.langothers != null && rsregskill.langothers != ""))
+        {
+            <h5>Languages</h5>
+            @rsregskill.languageskills
+            <br />
+            @rsregskill.langothers<hr width="50%" />}
+    }
+
+    <div class="row">
+        @if ((rsregskill.hardwareskills != null && rsregskill.hardwareskills != "") || (rsregskill.hardothers != null && rsregskill.hardothers != ""))
+        {
+
+            <div class="col-sm-6">
+                @if ((rsregskill.softwareskills != null && rsregskill.softwareskills != "") || (rsregskill.softothers != null && rsregskill.softothers != ""))
+                {
+                    <h5>Software</h5>
+                    @rsregskill.softwareskills
+                    <br />
+                    @rsregskill.softothers}
+
+            </div>
+        }
+        else
+        {
+
+            <div class="col-sm-12">
+                @if ((rsregskill.softwareskills != null && rsregskill.softwareskills != "") || (rsregskill.softothers != null && rsregskill.softothers != ""))
+                {
+                    <h5>Software</h5>
+                    @rsregskill.softwareskills
+                    <br />
+                    @rsregskill.softothers}
+
+            </div>
+        }
+        <div class="col-sm-6">
+            @if ((rsregskill.hardwareskills != null && rsregskill.hardwareskills != "") || (rsregskill.hardothers != null && rsregskill.hardothers != ""))
+            {
+                <h5>Hardware</h5>
+                @rsregskill.hardwareskills
+                <br />
+                @rsregskill.hardothers}
+        </div>
+    </div>
+
+
+    <!--Technical experience-->
+    @if (vblcompany1 != null && vblcompany1 != "")
+    {
+        <hr />
+        <h3 class="@rsprof.profcolor">Job Experience</h3>
+        if (regexist || vbladmin == 1)
+        { <a role="button" href="@Href("~/jobexp/" + vblidprofile)" class="btn btn-outline-info">Job Experience</a>}
+
+        <h5 class="@rsprof.profcolor text-justify">Experience 1:</h5>
+        <p class="text-justify"> <b>Company: </b>@rsprof.company1</p>
+    }
+
+    @if (vbljobtitle1 != null && vbljobtitle1 != "")
+    {
+        <p class="text-justify"> <b>Job Title: </b>@rsprof.jobtitle1</p>}
+
+    @if (vblstartdate1 != null && vblenddate1 != null)
+    {
+        <p class="text-justify"> <b>Duration: </b>@rsprof.startdate1.ToString("MMM d, yyyy") - @rsprof.enddate1.ToString("MMM d, yyyy")</p>
+    }
+    else if (vblstartdate1 != null && vblpresent1 == "1")
+    {
+        <p class="text-justify"> <b>Duration: </b>@rsprof.startdate1.ToString("MMM d, yyyy") - Present</p>
+    }
+
+    @if (vblstartdate1 != null && (vblenddate1 == null && vblpresent1 != "1"))
+    {
+        <p class="text-danger">Please enter <b>End Date</b> to display Date</p>}
+
+    @if (vblstartdate1 == null && (vblenddate1 != null || vblpresent1 == "1"))
+    {
+        <p class="text-danger">Please enter <b>Start Date</b> to display Date</p>}
+
+    @if (vblcountry1 != null && vblcity1 != null && vblcountry1 != "Country" && vblcity1 != "Country" && vblcountry1 != "" && vblcity1 != "")
+    {
+        <p class="text-justify"> <b>Location: </b>@rsprof.city1, @rsprof.country1</p>}
+
+    @if (vbljobdes1 != null && vbljobdes1 != "")
+    {
+        <p class="text-left"><b>Job Description:</b>@Html.Raw(rsprof.jobdes1.Replace("    • ", "<br>  • "))</p>}
+    @if (vblcompany1 != null && vblcompany1 != "")
+    {<hr />}
+
+
+    <!--Section 2-->
+
+    @if (vblcompany2 != null && vblcompany2 != "")
+    {
+
+        <h5 class="@rsprof.profcolor text-justify">Experience 2:</h5>
+        <p class="text-justify"> <b>Company: </b>@rsprof.company2</p>
+    }
+
+    @if (vbljobtitle2 != null && vbljobtitle2 != "")
+    {
+        <p class="text-justify"> <b>Job Title: </b>@rsprof.jobtitle2</p>}
+
+    @if (vblstartdate2 != null && vblenddate2 != null)
+    {
+        <p class="text-justify"> <b>Duration: </b>@rsprof.startdate2.ToString("MMM d, yyyy") - @rsprof.enddate2.ToString("MMM d, yyyy")</p>}
+    else if (vblstartdate2 != null && vblpresent2 == "1")
+    {
+        <p class="text-justify"> <b>Duration: </b>@rsprof.startdate2.ToString("MMM d, yyyy") - Present</p>
+    }
+
+    @if (vblstartdate2 != null && (vblenddate2 == null && vblpresent2 != "1"))
+    {
+        <p class="text-danger">Please enter <b>End Date</b> to display Date</p>}
+
+    @if (vblstartdate2 == null && (vblenddate2 != null || vblpresent2 == "1"))
+    {
+        <p class="text-danger">Please enter <b>Start Date</b> to display Date</p>}
+
+    @if (vblcountry2 != null && vblcity2 != null && vblcountry2 != "Country" && vblcity2 != "Country" && vblcountry2 != "" && vblcity2 != "")
+    {
+        <p class="text-justify"> <b>Location: </b>@rsprof.city2, @rsprof.country2</p>}
+
+    @if (vbljobdes2 != null && vbljobdes2 != "")
+    {
+        <p class="text-left"><b>Job Description:</b>@Html.Raw(rsprof.jobdes2.Replace("    • ", "<br>  • "))</p>}
+    @if (vblcompany2 != null && vblcompany2 != "")
+    {<hr />}
+
+
+    <!--Section 3-->
+
+    @if (vblcompany3 != null && vblcompany3 != "")
+    {
+
+        <h5 class="@rsprof.profcolor text-justify">Experience 3:</h5>
+        <p class="text-justify"> <b>Company: </b>@rsprof.company3</p>
+    }
+
+    @if (vbljobtitle3 != null && vbljobtitle3 != "")
+    {
+        <p class="text-justify"> <b>Job Title: </b>@rsprof.jobtitle3</p>}
+
+    @if (vblstartdate3 != null && vblenddate3 != null)
+    {
+        <p class="text-justify"> <b>Duration: </b>@rsprof.startdate3.ToString("MMM d, yyyy") - @rsprof.enddate3.ToString("MMM d, yyyy")</p>}
+
+    else if (vblstartdate3 != null && vblpresent3 == "1")
+    {
+        <p class="text-justify"> <b>Duration: </b>@rsprof.startdate3.ToString("MMM d, yyyy") - Present</p>
+    }
+
+    @if (vblstartdate3 != null && (vblenddate3 == null && vblpresent3 != "1"))
+    {
+        <p class="text-danger">Please enter <b>End Date</b> to display Date</p>}
+
+    @if (vblstartdate3 == null && (vblenddate3 != null || vblpresent3 == "1"))
+    {
+        <p class="text-danger">Please enter <b>Start Date</b> to display Date</p>}
+
+    @if (vblcountry3 != null && vblcity3 != null && vblcountry3 != "Country" && vblcity3 != "Country" && vblcountry3 != "" && vblcity3 != "")
+    {
+        <p class="text-justify"> <b>Location: </b>@rsprof.city3, @rsprof.country3</p>}
+
+    @if (vbljobdes3 != null && vbljobdes3 != "")
+    {<p class="text-left"><b>Job Description:</b>@Html.Raw(rsprof.jobdes3.Replace("    • ", "<br>  • "))</p>}
+
+    @if (vblcompany3 != null && vblcompany3 != "")
+    {<hr />}
+
+    <!--Section 4-->
+
+    @if (vblcompany4 != null && vblcompany4 != "")
+    {
+
+        <h5 class="@rsprof.profcolor text-justify">Experience 4:</h5>
+        <p class="text-justify"> <b>Company: </b>@rsprof.company4</p>
+    }
+
+    @if (vbljobtitle4 != null && vbljobtitle4 != "")
+    {
+        <p class="text-justify"> <b>Job Title: </b>@rsprof.jobtitle4</p>}
+
+    @if (vblstartdate4 != null && vblenddate4 != null)
+    {
+        <p class="text-justify"> <b>Duration: </b>@rsprof.startdate4.ToString("MMM d, yyyy") - @rsprof.enddate4.ToString("MMM d, yyyy")</p>}
+
+    else if (vblstartdate4 != null && vblpresent4 == "1")
+    {
+        <p class="text-justify"> <b>Duration: </b>@rsprof.startdate4.ToString("MMM d, yyyy") - Present</p>
+    }
+
+    @if (vblstartdate4 != null && (vblenddate4 == null && vblpresent4 != "1"))
+    {
+        <p class="text-danger">Please enter <b>End Date</b> to display Date</p>}
+
+    @if (vblstartdate4 == null && (vblenddate4 != null || vblpresent4 == "1"))
+    {
+        <p class="text-danger">Please enter <b>Start Date</b> to display Date</p>}
+
+    @if (vblcountry4 != null && vblcity4 != null && vblcountry4 != "Country" && vblcity4 != "Country" && vblcountry4 != "" && vblcity4 != "")
+    {
+        <p class="text-justify"> <b>Location: </b>@rsprof.city4, @rsprof.country4</p>}
+
+    @if (vbljobdes4 != null && vbljobdes4 != "")
+    {<p class="text-left"><b>Job Description:</b>@Html.Raw(rsprof.jobdes4.Replace("    • ", "<br>  • "))</p>}
+
+    @if (vblcompany4 != null && vblcompany4 != "")
+    {<hr />}
+    <!--Poject experienced section-->
+
+    @if (vblprojectname1 != null && vblprojectname1 != "")
+    {
+
+        <h3 class="@rsprof.profcolor">Project Experience</h3>
+        if (regexist || vbladmin == 1)
+        { <a role="button" href="@Href("~/projectexp/" + vblidprofile)" class="btn btn-outline-info">Project Experience</a>}
+        <h5 class="@rsprof.profcolor text-justify">Project 1:</h5>
+        <p class="text-justify"> <b>Project Name: </b>@rsregproj.projectname1</p>
+    }
+
+    @if (vblprojstartdate1 != null && vblprojenddate1 != null)
+    {
+        <p class="text-justify"> <b>Duration: </b>@rsregproj.projstartdate1.ToString("MMM d, yyyy") - @rsregproj.projenddate1.ToString("MMM d, yyyy")</p>}
+
+    else if (vblprojstartdate1 != null && vblprojpresent1 == "1")
+    {
+        <p class="text-justify"> <b>Duration: </b>@rsregproj.projstartdate1.ToString("MMM d, yyyy") - Present</p>
+    }
+    @if (vblprojstartdate1 != null && (vblprojenddate1 == null && vblprojpresent1 != "1"))
+    {
+        <p class="text-danger">Please enter <b>End Date</b> to display Date</p>}
+
+    @if (vblprojstartdate1 == null && (vblprojenddate1 != null || vblprojpresent1 == "1"))
+    {
+        <p class="text-danger">Please enter <b>Start Date</b> to display Date</p>}
+
+    @if (vblprojtype1 != null && vblprojtype1 != "Project Type" && vblprojtype1 != "")
+    {
+        <p class="text-justify"> <b>Project Type: </b>@rsregproj.projtype1</p>}
+
+    @if (vblprojcourse1 != null && vblprojcourse1 != "")
+    {
+        <p class="text-justify"> <b>Course Name: </b>@rsregproj.projcourse1</p>}
+    @if (vblprojdes1 != null && vblprojdes1 != "")
+    {
+        <p class="text-left"><b>Project Description:</b>@Html.Raw(rsregproj.projdes1.Replace("    • ", "<br>  • "))</p>}
+    @if (vblprojectname1 != null && vblprojectname1 != "")
+    {<hr />}
+
+    <!--Section 2 for project-->
+    @if (vblprojectname2 != null && vblprojectname2 != "")
+    {
+        <h5 class="@rsprof.profcolor text-justify">Project 2:</h5>
+        <p class="text-justify"> <b>Project Name: </b>@rsregproj.projectname2</p>
+    }
+
+    @if (vblprojstartdate2 != null && vblprojenddate2 != null)
+    {
+        <p class="text-justify"> <b>Duration: </b>@rsregproj.projstartdate2.ToString("MMM d, yyyy") - @rsregproj.projenddate2.ToString("MMM d, yyyy")</p>}
+
+    else if (vblprojstartdate2 != null && vblprojpresent2 == "1")
+    {
+        <p class="text-justify"> <b>Duration: </b>@rsregproj.projstartdate2.ToString("MMM d, yyyy") - Present</p>
+    }
+    @if (vblprojstartdate2 != null && (vblprojenddate2 == null && vblprojpresent2 != "1"))
+    {
+        <p class="text-danger">Please enter <b>End Date</b> to display Date</p>}
+
+    @if (vblprojstartdate2 == null && (vblprojenddate2 != null || vblprojpresent2 == "1"))
+    {
+        <p class="text-danger">Please enter <b>Start Date</b> to display Date</p>}
+
+    @if (vblprojtype2 != null && vblprojtype2 != "Project Type" && vblprojtype2 != "")
+    {
+        <p class="text-justify"> <b>Project Type: </b>@rsregproj.projtype2</p>}
+
+    @if (vblprojcourse2 != null && vblprojcourse2 != "")
+    {
+        <p class="text-justify"> <b>Course Name: </b>@rsregproj.projcourse2</p>}
+
+    @if (vblprojdes2 != null && vblprojdes2 != "")
+    {
+        <p class="text-left"><b>Project Description:</b>@Html.Raw(rsregproj.projdes2.Replace("    • ", "<br>  • "))</p>}
+    @if (vblprojectname2 != null && vblprojectname2 != "")
+    {<hr />}
+    <!--Section 3for project-->
+    @if (vblprojectname3 != null && vblprojectname3 != "")
+    {
+        <h5 class="@rsprof.profcolor text-justify">Project 3:</h5>
+        <p class="text-justify"> <b>Project Name: </b>@rsregproj.projectname3</p>
+    }
+
+    @if (vblprojstartdate3 != null && vblprojenddate3 != null)
+    {
+        <p class="text-justify"> <b>Duration: </b>@rsregproj.projstartdate3.ToString("MMM d, yyyy") - @rsregproj.projenddate3.ToString("MMM d, yyyy")</p>}
+
+    else if (vblprojstartdate3 != null && vblprojpresent3 == "1")
+    {
+        <p class="text-justify"> <b>Duration: </b>@rsregproj.projstartdate3.ToString("MMM d, yyyy") - Present</p>
+    }
+    @if (vblprojstartdate3 != null && (vblprojenddate3 == null && vblprojpresent3 != "1"))
+    {
+        <p class="text-danger">Please enter <b>End Date</b> to display Date</p>}
+
+    @if (vblprojstartdate3 == null && (vblprojenddate3 != null || vblprojpresent3 == "1"))
+    {
+        <p class="text-danger">Please enter <b>Start Date</b> to display Date</p>}
+
+    @if (vblprojtype3 != null && vblprojtype3 != "Project Type" && vblprojtype3 != "")
+    {
+        <p class="text-justify"> <b>Project Type: </b>@rsregproj.projtype3</p>}
+
+    @if (vblprojcourse3 != null && vblprojcourse3 != "")
+    {
+        <p class="text-justify"> <b>Course Name: </b>@rsregproj.projcourse3</p>}
+
+    @if (vblprojdes3 != null && vblprojdes3 != "")
+    {<p class="text-left"><b>Project Description:</b>@Html.Raw(rsregproj.projdes3.Replace("    • ", "<br>  • "))</p>}
+    @if (vblprojectname3 != null && vblprojectname3 != "")
+    {<hr />}
+
+
+    <!--Exgtracurricular section-->
+
+    @if (vblextratitle1 != null && vblextratitle1 != "")
+    {
+        <h3 class="@rsprof.profcolor">Extracurricular Activites</h3>
+        if (regexist || vbladmin == 1)
+        { <a role="button" href="@Href("~/extracur/" + vblidprofile)" class="btn btn-outline-info">Extracurricular</a>}
+
+        <h5 class="@rsprof.profcolor text-justify">Extracurricular 1:</h5>
+        <p class="text-justify"> <b>Activity Title: </b>@rsregextra.extratitle1</p>
+    }
+    @if (vblextracompany1 != null && vblextracompany1 != "")
+    {<p class="text-justify"> <b>Company: </b>@rsregextra.extracompany1</p>
+}
+
+    @if (vblextrastartdate1 != null && vblextraenddate1 != null)
+    {<p class="text-justify"> <b>Duration: </b>@rsregextra.extrastartdate1.ToString("MMM d, yyyy") - @rsregextra.extraenddate1.ToString("MMM d, yyyy")</p>}
+else if (vblextrastartdate1 != null && vblextrapresent1 == "1")
+{
+    <p class="text-justify"> <b>Duration: </b>@rsregextra.extrastartdate1.ToString("MMM d, yyyy") - Present</p>
+}
+    @if (vblextrastartdate1 != null && (vblextraenddate1 == null && vblextrapresent1 != "1"))
+    {
+        <p class="text-danger">Please enter <b>End Date</b> to display Date</p>}
+
+    @if (vblextrastartdate1 == null && (vblextraenddate1 != null || vblextrapresent1 == "1"))
+    {
+        <p class="text-danger">Please enter <b>Start Date</b> to display Date</p>}
+
+    @if (vblextrades1 != null && vblextrades1 != "")
+    {<p class="text-left"><b>Activity Description:</b>@Html.Raw(rsregextra.extrades1.Replace("    • ", "<br>  • "))</p>}
+
+    @if (vblextratitle1 != null && vblextratitle1 != "")
+    {<hr />}
+
+    <!--Extra 2-->
+    @if (vblextratitle2 != null && vblextratitle2 != "")
+    {
+        <h5 class="@rsprof.profcolor text-justify">Extracurricular 2:</h5>
+        <p class="text-justify"> <b>Activity Title: </b>@rsregextra.extratitle2</p>
+    }
+    @if (vblextracompany2 != null && vblextracompany2 != "")
+    {<p class="text-justify"> <b>Company: </b>@rsregextra.extracompany2</p>
+}
+
+    @if (vblextrastartdate2 != null && vblextraenddate2 != null)
+    {<p class="text-justify"> <b>Duration: </b>@rsregextra.extrastartdate2.ToString("MMM d, yyyy") - @rsregextra.extraenddate2.ToString("MMM d, yyyy")</p>}
+
+else if (vblextrastartdate2 != null && vblextrapresent2 == "1")
+{
+    <p class="text-justify"> <b>Duration: </b>@rsregextra.extrastartdate2.ToString("MMM d, yyyy") - Present</p>
+}
+    @if (vblextrastartdate2 != null && (vblextraenddate2 == null && vblextrapresent2 != "1"))
+    {
+        <p class="text-danger">Please enter <b>End Date</b> to display Date</p>}
+
+    @if (vblextrastartdate2 == null && (vblextraenddate2 != null || vblextrapresent2 == "1"))
+    {
+        <p class="text-danger">Please enter <b>Start Date</b> to display Date</p>}
+
+    @if (vblextrades2 != null && vblextrades2 != "")
+    {<p class="text-left"><b>Activity Description:</b>@Html.Raw(rsregextra.extrades2.Replace("    • ", "<br>  • "))</p>}
+
+    @if (vblextratitle2 != null && vblextratitle2 != "")
+    {<hr />}
+
+    <!--Extra 3-->
+    @if (vblextratitle3 != null && vblextratitle3 != "")
+    {
+        <h5 class="@rsprof.profcolor text-justify">Extracurricular 3:</h5>
+        <p class="text-justify"> <b>Activity Title: </b>@rsregextra.extratitle3</p>
+    }
+    @if (vblextracompany3 != null && vblextracompany3 != "")
+    {<p class="text-justify"> <b>Company: </b>@rsregextra.extracompany3</p>
+}
+
+    @if (vblextrastartdate3 != null && vblextraenddate3 != null)
+    {<p class="text-justify"> <b>Duration: </b>@rsregextra.extrastartdate3.ToString("MMM d, yyyy") - @rsregextra.extraenddate3.ToString("MMM d, yyyy")</p>}
+else if (vblextrastartdate3 != null && vblextrapresent3 == "1")
+{
+    <p class="text-justify"> <b>Duration: </b>@rsregextra.extrastartdate3.ToString("MMM d, yyyy") - Present</p>
+}
+    @if (vblextrastartdate3 != null && (vblextraenddate3 == null && vblextrapresent3 != "1"))
+    {
+        <p class="text-danger">Please enter <b>End Date</b> to display Date</p>}
+
+    @if (vblextrastartdate3 == null && (vblextraenddate3 != null || vblextrapresent3 == "1"))
+    {
+        <p class="text-danger">Please enter <b>Start Date</b> to display Date</p>}
+
+    @if (vblextrades3 != null && vblextrades3 != "")
+    {<p class="text-left"><b>Activity Description:</b>@Html.Raw(rsregextra.extrades3.Replace("    • ", "<br>  • "))</p>}
+    <hr style="background-color:@rsprof.profcolor" />
+</div>
+
+    }
+    else
+    {
+
+    <h5>No Such memeber exist</h5>
+    return;
+    }
+    }
+    }

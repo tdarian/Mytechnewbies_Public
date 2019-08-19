@@ -1,0 +1,482 @@
+
+@{
+    Layout = "~/shared/_Layout.cshtml";
+    using (var db = Database.Open("Projectfriends"))
+    {
+        int vblidprofile = UrlData[0].AsInt();
+        if (Request.Cookies["newbiecookie"] != null)
+        {
+            var rsregproj = db.QuerySingle("select signin.*, profile.*, project.* from signin INNER JOIN profile ON signin.idreg = profile.idregprof LEFT JOIN project ON profile.idregprof = project.idregjob where signin.idreg=@0", Request.Cookies["newbiecookie"].Value.AsInt());
+
+            if (rsregproj == null)
+            {
+                Response.Redirect("~/login", false); //better to the logout page
+                return;
+            }
+            if (rsregproj.admin == 1)
+            {
+                rsregproj = db.QuerySingle("select signin.*, profile.* from signin INNER JOIN profile ON signin.idreg = profile.idregprof where signin.idreg=@0 ", vblidprofile);
+                if (rsregproj == null)
+                {
+                    Response.Redirect("~/memberlist", false);
+                    return;
+                }
+            }
+            if (IsPost)
+            {
+
+                var vblcountry1 = Request.Form["country1"];
+                var vblcountry2 = Request.Form["country2"];
+                var vblcountry3 = Request.Form["country3"];
+                var vblcountry4 = Request.Form["country4"];
+                var vblcity1 = Request.Form["city1"];
+                var vblcity2 = Request.Form["city2"];
+                var vblcity3 = Request.Form["city3"];
+                var vblcity4 = Request.Form["city4"];
+                var vbljobtitle1 = Request.Form["jobtitle1"];
+                var vbljobtitle2 = Request.Form["jobtitle2"];
+                var vbljobtitle3 = Request.Form["jobtitle3"];
+                var vbljobtitle4 = Request.Form["jobtitle4"];
+
+                var vblstartdate1 = Request.Form["startdate1"];
+                var vblstartdate2 = Request.Form["startdate2"];
+                var vblstartdate3 = Request.Form["startdate3"];
+                var vblstartdate4 = Request.Form["startdate4"];
+                var vblenddate1 = Request.Form["enddate1"];
+                var vblenddate2 = Request.Form["enddate2"];
+                var vblenddate3 = Request.Form["enddate3"];
+                var vblenddate4 = Request.Form["enddate4"];
+                //protecting the posted information from hackable code
+                var vbljobdes1 = Request.Unvalidated("jobdes1");
+                if (!vbljobdes1.IsEmpty())
+                {
+                    vbljobdes1 = vbljobdes1.ToString().AsSafeHtml();
+
+                }
+                var vbljobdes2 = Request.Unvalidated("jobdes2");
+                if (!vbljobdes2.IsEmpty())
+                {
+                    vbljobdes2 = vbljobdes2.ToString().AsSafeHtml();
+
+                }
+                var vbljobdes3 = Request.Unvalidated("jobdes3");
+                if (!vbljobdes3.IsEmpty())
+                {
+                    vbljobdes3 = vbljobdes3.ToString().AsSafeHtml();
+
+                }
+                var vbljobdes4 = Request.Unvalidated("jobdes4");
+                if (!vbljobdes4.IsEmpty())
+                {
+                    vbljobdes4 = vbljobdes4.ToString().AsSafeHtml();
+
+                }
+
+
+                var vblcurrentcountry = Request.Form["currentcountry"];
+                var vblcurrentcity = Request.Form["currentcity"];
+                var vblage = Request.Form["age"];
+                var vblcompany1 = Request.Form["company1"];
+                var vblcompany2 = Request.Form["company2"];
+                var vblcompany3 = Request.Form["company3"];
+                var vblcompany4 = Request.Form["company4"];
+                var vblpresent1 = Request.Form["present1"];
+                var vblpresent2 = Request.Form["present2"];
+                var vblpresent3 = Request.Form["present3"];
+                var vblpresent4 = Request.Form["present4"];
+
+                if (vblstartdate1.IsEmpty())
+                { vblstartdate1 = null; }
+                if (vblstartdate2.IsEmpty())
+                { vblstartdate2 = null; }
+                if (vblstartdate3.IsEmpty())
+                { vblstartdate3 = null; }
+                if (vblstartdate4.IsEmpty())
+                { vblstartdate4 = null; }
+                if (vblenddate1.IsEmpty())
+                { vblenddate1 = null; }
+                if (vblenddate2.IsEmpty())
+                { vblenddate2 = null; }
+                if (vblenddate3.IsEmpty())
+                { vblenddate3 = null; }
+                if (vblenddate4.IsEmpty())
+                { vblenddate4 = null; }
+
+                if (vbljobdes1.Length > 2960)
+                {vbljobdes1 = vbljobdes1.Substring(0, 2960);}
+
+                if (vbljobdes2.Length > 2960)
+                { vbljobdes3 = vbljobdes3.Substring(0, 2960);}
+
+                if (vbljobdes3.Length > 2960)
+                {vbljobdes3 = vbljobdes3.Substring(0, 2960);}
+
+                if (vbljobdes4.Length > 2960)
+                { vbljobdes4 = vbljobdes4.Substring(0, 2960); }
+
+                if (vblcompany1.Length > 45)
+                { vblcompany1 = vblcompany1.Substring(0, 45); }
+
+                if (vblcompany2.Length > 45)
+                { vblcompany2 = vblcompany2.Substring(0, 45); }
+
+                if (vblcompany3.Length > 45)
+                { vblcompany3 = vblcompany3.Substring(0, 45); }
+
+                if (vblcompany4.Length > 45)
+                { vblcompany4 = vblcompany4.Substring(0, 45); }
+
+                var rsprojectcheck = db.QuerySingle("select idregprof from profile where idregprof = @0", rsregproj.idreg);
+
+                if (rsprojectcheck != null)
+                {
+                    var updatefirst = "UPDATE profile SET country1=@0,country2=@1,country3=@2,country4=@3,city1=@4,city2=@5,city3=@6,city4=@7,jobtitle1=@8,jobtitle2=@9,jobtitle3=@10,jobtitle4=@11, startdate1=@12,startdate2=@13,startdate3=@14,startdate4=@15,enddate1=@16,enddate2=@17,enddate3=@18,enddate4=@19,jobdes1=@20,jobdes2=@21,jobdes3=@22,jobdes4=@23, company1=@24, company2=@25, company3=@26,company4=@27, present1=@28,present2=@29,present3=@30,present4=@31 where idregprof=@32";
+                    db.Execute(updatefirst, vblcountry1, vblcountry2, vblcountry3, vblcountry4, vblcity1, vblcity2, vblcity3, vblcity4, vbljobtitle1, vbljobtitle2, vbljobtitle3, vbljobtitle4, vblstartdate1, vblstartdate2, vblstartdate3, vblstartdate4, vblenddate1, vblenddate2, vblenddate3, vblenddate4, vbljobdes1, vbljobdes2, vbljobdes3, vbljobdes4, vblcompany1, vblcompany2, vblcompany3, vblcompany4, vblpresent1,vblpresent2,vblpresent3, vblpresent4, rsregproj.idreg);
+                    // if the updete is successfull then redicet the page to the sam page
+                    Response.Redirect("~/jobexp/"+rsregproj.idreg, false);
+                    return;
+                }
+
+                else
+                {
+                    var insertfirst = "insert into profile (idregprof,country1,country2,country3,country4,city1,city2,city3,city4,jobtitle1,jobtitle2,jobtitle3, jobtitle4, startdate1,startdate2,startdate3, startdate4,enddate1,enddate2,enddate3,enddate4,jobdes1,jobdes2,jobdes3,jobdes4, company1, company2, company3,company4,present1, present2, present3,present4) Values(@0, @1, @2, @3, @4, @5, @6,@7,@8,@9,@10,@11,@12,@13,@14,@15,@16,@17,@18,@19,@20,@21,@22,@23,@24,@25,@26,@27,@28,@29,@30,@31,@32)";
+                    db.Execute(insertfirst, rsregproj.idreg, vblcountry1, vblcountry2, vblcountry3, vblcountry4, vblcity1, vblcity2, vblcity3, vblcity4, vbljobtitle1, vbljobtitle2, vbljobtitle3, vbljobtitle4, vblstartdate1, vblstartdate2, vblstartdate3, vblstartdate4, vblenddate1, vblenddate2, vblenddate3, vblenddate4, vbljobdes1, vbljobdes2, vbljobdes3, vbljobdes4, vblcompany1, vblcompany2, vblcompany3, vblcompany4, vblpresent1, vblpresent2, vblpresent3, vblpresent4, rsregproj.idreg);
+                    Response.Redirect("~/jobexp/" + rsregproj.idreg, false);
+                    return;
+                }
+            }
+
+<form method="post" class="needs-validation form1000" novalidate>
+    <a role="button" href="@Href("~/skills/" + vblidprofile )" class="btn btn-outline-info">Technical & Language Skills</a>
+    <a role="button" href="@Href("~/editprofile/" + vblidprofile)" class="btn btn-outline-info">Personal Profile</a>
+    <a role="button" href="@Href("~/jobexp/" + vblidprofile)" class="btn btn-info">Job Experience</a>
+    <a role="button" href="@Href("~/projectexp/" +vblidprofile)" class="btn btn-outline-info">Project Experience</a>
+    <a role="button" href="@Href("~/extracur/" +vblidprofile)" class="btn btn-outline-info">Extracurricular</a>
+    <a role="button" href="@Href("~/references/" +vblidprofile)" class="btn btn-outline-info">References</a>
+    <a role="button" href="@Href("~/profile/" + vblidprofile)" class="btn btn-outline-info">Profile</a>
+
+    <br /><br />
+    <h3 class=" @rsregproj.profcolor">Job Experience</h3>
+    <h5 class="mb-2">You may fill out as many fields as you desire. <br /> (If you require more fields, let us know through the Contact form)</h5>
+    <h5 class="mb-2 text-primary">In the description field, press enter where you want a bullet point to show. It will appear after you save and displayed as a list on the profile page and resume.<br /><span class="text-danger">Note: May have to save twice for it to appear as a list on profile.</span></h5>
+
+
+    <div class="col-12 order-1">
+        <p><b>Job Experience 1</b></p>
+        <table class="table table-borderless table-sm">
+            <tr>
+                <td colspan="2">
+                    <input type="text" maxlength="45" class="form-control" name="company1" value="@rsregproj.company1" placeholder="Company" autocomplete="off">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <input type="text" class="form-control" name="jobtitle1" value="@rsregproj.jobtitle1" placeholder="Job Title" autocomplete="off">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="input-group date " data-provide="datepicker">
+                        <input type="text" name="startdate1" class="form-control" value="@if (rsregproj.startdate1 != null) {@rsregproj.startdate1.ToString("MMM d, yyyy")}" placeholder="Start Date">
+                        <div class="input-group-addon">
+                            <span class="glyphicon glyphicon-th"></span>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="input-group date" data-provide="datepicker">
+                        <input type="text" name="enddate1" class="form-control" value="@if (rsregproj.enddate1 != null) {@rsregproj.enddate1.ToString("MMM d, yyyy")}" placeholder="End Date">
+                        <div class="input-group-addon">
+                            <span class="glyphicon glyphicon-th"></span>
+                        </div>
+                    </div>
+                    @if (rsregproj.present1 == "1")
+                    {
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="present1" value="1" checked>
+                            <label class="form-check-label" for="inlineCheckbox1"><b>Present</b></label>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="present1" value="1">
+                            <label class="form-check-label" for="inlineCheckbox1"><b>Present</b></label>
+                        </div>
+                    }
+                </td>
+
+            </tr>
+            <tr>
+                <td>
+                    <select name="country1" class="custom-select">
+                        @if (rsregproj.country1 != null)
+                        {
+                            <option value="@rsregproj.country1" selected>@rsregproj.country1</option>
+                        }
+                        else
+                        {
+                            <option selected>Country</option>
+                        }
+                        <option>Canada</option>
+                        <option>United States</option>
+                        <option>Mexico</option>
+                        <option>India</option>
+                    </select>
+                </td>
+                <td colspan="2">
+                    <input type="text" class="form-control" name="city1" value="@rsregproj.city1" placeholder="City" autocomplete="off">
+
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <textarea name="jobdes1" maxlength="2960" class="form-control" rows="8" placeholder="Describe your job position">@if (rsregproj.jobdes1 != null) {@Html.Raw(rsregproj.jobdes1.Replace("\r\n", "    • "))}</textarea>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="col-12 order-2" style="background-color: aliceblue">
+        <p><b>Job Experience 2</b></p>
+        <table class="table table-borderless table-sm">
+            <tr>
+                <td colspan="2">
+                    <input type="text" maxlength="45" class="form-control" name="company2" value="@rsregproj.company2" placeholder="Company" autocomplete="off">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <input type="text" class="form-control" name="jobtitle2" value="@rsregproj.jobtitle2" placeholder="Job Title" autocomplete="off">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="input-group date " data-provide="datepicker">
+                        <input type="text" name="startdate2" class="form-control" value="@if (rsregproj.startdate2 != null) {@rsregproj.startdate2.ToString("MMM d, yyyy")}" placeholder="Start Date">
+                        <div class="input-group-addon">
+                            <span class="glyphicon glyphicon-th"></span>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="input-group date" data-provide="datepicker">
+                        <input type="text" name="enddate2" class="form-control" value="@if (rsregproj.enddate2 != null) {@rsregproj.enddate2.ToString("MMM d, yyyy")}" placeholder="End Date">
+                        <div class="input-group-addon">
+                            <span class="glyphicon glyphicon-th"></span>
+                        </div>
+                    </div>
+                    @if (rsregproj.present2 == "1")
+                    {
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="inlineCheckbox2" name="present2" value="1" checked>
+                            <label class="form-check-label" for="inlineCheckbox2"><b>Present</b></label>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="inlineCheckbox2" name="present2" value="1">
+                            <label class="form-check-label" for="inlineCheckbox2"><b>Present</b></label>
+                        </div>
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <select name="country2" class="custom-select">
+                        @if (rsregproj.country2 != null)
+                        {
+                            <option value="@rsregproj.country2" selected>@rsregproj.country2</option>
+                        }
+                        else
+                        {
+                            <option selected>Country</option>
+                        }
+                        <option>Canada</option>
+                        <option>United States</option>
+                        <option>Mexico</option>
+                        <option>India</option>
+                    </select>
+                </td>
+                <td colspan="2">
+                    <input type="text" class="form-control" name="city2" value="@rsregproj.city2" placeholder="City" autocomplete="off">
+
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <textarea name="jobdes2" maxlength="2960" class="form-control" rows="8" placeholder="Describe your job position">@if (rsregproj.jobdes2 != null) {@Html.Raw(rsregproj.jobdes2.Replace("\r\n", "    • "))}</textarea>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+
+
+    <div class="col-12 order-3">
+        <p><b>Job Experience 3</b></p>
+        <table class="table table-borderless table-sm">
+            <tr>
+                <td colspan="2">
+                    <input type="text" maxlength="45" class="form-control" name="company3" value="@rsregproj.company3" placeholder="Company" autocomplete="off">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <input type="text" class="form-control" name="jobtitle3" value="@rsregproj.jobtitle3" placeholder="Job Title" autocomplete="off">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="input-group date " data-provide="datepicker">
+                        <input type="text" name="startdate3" class="form-control" value="@if (rsregproj.startdate3 != null) {@rsregproj.startdate3.ToString("MMM d, yyyy")}" placeholder="Start Date">
+                        <div class="input-group-addon">
+                            <span class="glyphicon glyphicon-th"></span>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="input-group date" data-provide="datepicker">
+                        <input type="text" name="enddate3" class="form-control" value="@if (rsregproj.enddate3 != null) {@rsregproj.enddate3.ToString("MMM d, yyyy")}" placeholder="End Date">
+                        <div class="input-group-addon">
+                            <span class="glyphicon glyphicon-th"></span>
+                        </div>
+                    </div>
+                    @if (rsregproj.present3 == "1")
+                    {
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="inlineCheckbox3" name="present3" value="1" checked>
+                            <label class="form-check-label" for="inlineCheckbox3"><b>Present</b></label>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="inlineCheckbox3" name="present3" value="1">
+                            <label class="form-check-label" for="inlineCheckbox3"><b>Present</b></label>
+                        </div>
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <select name="country3" class="custom-select">
+                        @if (rsregproj.country3 != null)
+                        {
+                            <option value="@rsregproj.country3" selected>@rsregproj.country3</option>
+                        }
+                        else
+                        {
+                            <option selected>Country</option>
+                        }
+                        <option>Canada</option>
+                        <option>United States</option>
+                        <option>Mexico</option>
+                        <option>India</option>
+                    </select>
+                </td>
+                <td>
+                    <input type="text" class="form-control" name="city3" value="@rsregproj.city3" placeholder="City" autocomplete="off">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <textarea name="jobdes3" maxlength="2960" class="form-control" rows="8" placeholder="Describe your job position">@if (rsregproj.jobdes3 != null) {@Html.Raw(rsregproj.jobdes3.Replace("\r\n", "    • "))}</textarea>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="col-12 order-4" style="background-color: aliceblue">
+        <p><b>Job Experience 4</b></p>
+        <table class="table table-borderless table-sm">
+            <tr>
+                <td colspan="2">
+                    <input type="text" maxlength="45" class="form-control" name="company4" value="@rsregproj.company4" placeholder="Company" autocomplete="off">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <input type="text" class="form-control" name="jobtitle4" value="@rsregproj.jobtitle4" placeholder="Job Title" autocomplete="off">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="input-group date " data-provide="datepicker">
+                        <input type="text" name="startdate4" class="form-control" value="@if (rsregproj.startdate4 != null) {@rsregproj.startdate4.ToString("MMM d, yyyy")}" placeholder="Start Date">
+                        <div class="input-group-addon">
+                            <span class="glyphicon glyphicon-th"></span>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="input-group date" data-provide="datepicker">
+                        <input type="text" name="enddate4" class="form-control" value="@if (rsregproj.enddate4 != null) {@rsregproj.enddate4.ToString("MMM d, yyyy")}" placeholder="End Date">
+                        <div class="input-group-addon">
+                            <span class="glyphicon glyphicon-th"></span>
+                        </div>
+                    </div>
+                    @if (rsregproj.present4 == "1")
+                    {
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="inlineCheckbox4" name="present4" value="1" checked>
+                            <label class="form-check-label" for="inlineCheckbox4"><b>Present</b></label>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="inlineCheckbox4" name="present4" value="1">
+                            <label class="form-check-label" for="inlineCheckbox4"><b>Present</b></label>
+                        </div>
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <select name="country4" class="custom-select">
+                        @if (rsregproj.country4 != null)
+                        {
+                            <option value="@rsregproj.country4" selected>@rsregproj.country4</option>
+                        }
+                        else
+                        {
+                            <option selected>Country</option>
+                        }
+                        <option>Canada</option>
+                        <option>United States</option>
+                        <option>Mexico</option>
+                        <option>India</option>
+                    </select>
+                </td>
+                <td colspan="2">
+                    <input type="text" class="form-control" name="city4" value="@rsregproj.city4" placeholder="City" autocomplete="off">
+
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <textarea name="jobdes4" maxlength="2960" class="form-control" rows="8" placeholder="Describe your job position">@if (rsregproj.jobdes4 != null) {@Html.Raw(rsregproj.jobdes4.Replace("\r\n", "    • "))}</textarea>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+
+
+    <br />
+
+    <button class="btn btn-outline-info" type="submit">Save</button>
+</form>
+
+        }
+        else
+        {
+            Response.Redirect("~/logout", false); //better to the logout page
+            return;
+        }
+    }
+
+}
+

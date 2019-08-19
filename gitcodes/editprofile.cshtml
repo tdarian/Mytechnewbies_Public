@@ -1,0 +1,548 @@
+@{
+    Layout = "~/shared/_Layout.cshtml";
+    using (var db = Database.Open("Projectfriends"))
+    {
+
+        int vblidprofile = UrlData[0].AsInt();
+        if (Request.Cookies["newbiecookie"] != null)
+        {
+            var rsreg = db.QuerySingle("select signin.*, profile.* from signin INNER JOIN profile ON signin.idreg = profile.idregprof where signin.idreg=@0 ", Request.Cookies["newbiecookie"].Value.AsInt());
+
+            if (rsreg == null)
+            {
+                Response.Redirect("~/login", false); //better to the logout page
+                return;
+            }
+            if (rsreg.admin == 1)
+            {
+                rsreg = db.QuerySingle("select signin.*, profile.* from signin INNER JOIN profile ON signin.idreg = profile.idregprof where signin.idreg=@0 ", vblidprofile);
+                if (rsreg == null)
+                {
+                    Response.Redirect("~/memberlist", false);
+                    return;
+                }
+            }
+            int vblsaveprofile = Request.Form["saveprofile"].AsInt();
+
+            if (IsPost && vblsaveprofile == 1)
+            {
+                var vblfullstudent = Request.Form["fullstudent"];
+                var vblpartstudent = Request.Form["partstudent"];
+                var vblintern = Request.Form["intern"];
+                var vbllooking = Request.Form["looking"];
+                var vblcoop = Request.Form["coop"];
+                var vblaccounting = Request.Form["accounting"];
+                var vblentrepre = Request.Form["entre"];
+                var vblfinance = Request.Form["finance"];
+                var vblhr = Request.Form["hr"];
+                var vblinternational = Request.Form["international"];
+                var vblmanagement = Request.Form["management"];
+                var vbloperations = Request.Form["operations"];
+                var vblmarketing = Request.Form["marketing"];
+                var vblstratetic = Request.Form["strategic"];
+
+                var vbldegree = Request.Form["degree"];
+                var vblgpa = Request.Form["gpa"];
+                var vblemail = Request.Form["email"];
+                var vblgraddate = Request.Form["graddate"];
+                var vblcoursenumber = Request.Form["coursenumber"];
+                var vblsummary = Request.Form["deginfo"];
+                var vblphonenum1 = Request.Form["phonenum1"];
+                var vblphonenum2 = Request.Form["phonenum2"];
+                var vblphonenum3 = Request.Form["phonenum3"];
+                var vblprofcolor = Request.Form["profcolor"];
+
+                var vblcurrentcountry = Request.Form["currentcountry"];
+                var vblcurrentcity = Request.Form["currentcity"];
+                var vblage = Request.Form["age"];
+                var vblschool = Request.Form["school"];
+
+                var vblminor = Request.Form["minor"];
+
+                if (vblgraddate.IsEmpty())
+                { vblgraddate = null; }
+
+                //Max length
+                if (vblgpa.Length > 4)
+                {
+                    vblgpa = vblgpa.Substring(0, 4);
+                }
+                if (vblsummary.Length > 450)
+                {
+                    vblsummary = vblsummary.Substring(0, 450);
+                }
+                if (vblphonenum1.Length > 3)
+                {
+                    vblphonenum1 = vblphonenum1.Substring(0, 3);
+                }
+                if (vblphonenum2.Length > 3)
+                {
+                    vblphonenum2 = vblphonenum2.Substring(0, 3);
+                }
+                if (vblphonenum3.Length > 4)
+                {
+                    vblphonenum3 = vblphonenum3.Substring(0, 4);
+                }
+
+
+
+                var updatefirst = "UPDATE profile SET degree=@0, gpa=@1, graddate=@2, coursenumber=@3, deginfo=@4,profcolor=@5, phonenum1=@6, phonenum2=@7, phonenum3=@8, currentcountry=@9,currentcity=@10, school=@11, fullstudent=@12, partstudent=@13, intern=@14, looking=@15, coop=@16, minor=@17, accounting=@18, entre=@19, finance=@20, hr=@21, international=@22, management=@23, operations=@24, marketing=@25, strategic=@26 where idregprof=@27";
+
+                db.Execute(updatefirst, vbldegree, vblgpa, vblgraddate, vblcoursenumber, vblsummary, vblprofcolor, vblphonenum1, vblphonenum2, vblphonenum3, vblcurrentcountry, vblcurrentcity, vblschool, vblfullstudent, vblpartstudent, vblintern, vbllooking, vblcoop, vblminor, vblaccounting,vblentrepre,vblfinance,vblhr,vblinternational,vblmanagement,vbloperations,vblmarketing,vblstratetic, rsreg.idreg);
+
+                // if the updete is successfull then redirect the page to the same page
+                Response.Redirect("~/editprofile/" + rsreg.idreg, false);
+                return;
+
+
+            }
+
+
+            <a role="button" href="@Href("~/skills/" + vblidprofile )" class="btn btn-outline-info">Technical & Language Skills</a>
+            <a role="button" href="@Href("~/editprofile/" + vblidprofile)" class="btn btn-info">Personal Profile</a>
+            <a role="button" href="@Href("~/jobexp/" + vblidprofile)" class="btn btn-outline-info">Job Experience</a>
+            <a role="button" href="@Href("~/projectexp/" +vblidprofile)" class="btn btn-outline-info">Project Experience</a>
+            <a role="button" href="@Href("~/extracur/" +vblidprofile)" class="btn btn-outline-info">Extracurricular</a>
+            <a role="button" href="@Href("~/references/" +vblidprofile)" class="btn btn-outline-info">References</a>
+            <a role="button" href="@Href("~/profile/" + vblidprofile)" class="btn btn-outline-info">Profile</a>
+
+
+            <br /><br />
+            if (rsreg.profimage != null)
+            {
+                <img src="@Href("~/images/" + rsreg.profimage)" class="img-fluid img-thumbnail rounded-circle mb-2" alt="Responsive image" />
+            }
+
+            <div class="row">
+                @RenderPage("uploadimage.cshtml", rsreg.idreg)
+            </div>
+
+            <form method="post" class="needs-validation form1000" novalidate>
+
+                <div class="form-group">
+                    <p class="text-warning">To be displayed on the home page list, the following fields are required(*).</p>
+                    <p class="text-primary">If you are a <b>Business major</b>, select the degree and click save. Once you have saved an option you will be able to select your concentrations.</p>
+                </div>
+                <div class="form-group">
+                    <label for="profcolor" style="float:left"><b>What color would you like your profile to display?</b></label>
+                    <select name="profcolor" class="custom-select">
+                        @if (rsreg.profcolor != null)
+                        {
+                            <option value="@rsreg.profcolor" selected>@rsreg.profcolor</option>
+                        }
+                        else
+                        {
+                            <option selected>Choose a Color</option>
+                        }
+                        <option value="Purple">Purple</option>
+                        <option value="Green">Green</option>
+                        <option value="Blue">Blue</option>
+                        <option value="Yellow">Yellow</option>
+                        <option value="Pink">Pink</option>
+                        <option value="Red">Red</option>
+                        <option value="Orange">Orange</option>
+                    </select>
+                </div>
+
+                <!--Class calls the css color-->
+                <h3 class="@rsreg.profcolor">Education</h3>
+                <h6>You may select more than one</h6>
+                @if (rsreg.fullstudent == "1")
+                {
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="fullstudent" value="1" checked>
+                        <label class="form-check-label" for="inlineCheckbox1">Full-Time Student</label>
+                    </div>
+                }
+                else
+                {
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="fullstudent" value="1">
+                        <label class="form-check-label" for="inlineCheckbox1">Full-Time Student</label>
+                    </div>
+                }
+                @if (rsreg.partstudent == "1")
+                {
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="partstudent" value="1" checked>
+                        <label class="form-check-label" for="inlineCheckbox1">Part-Time Student</label>
+                    </div>
+                }
+                else
+                {
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="partstudent" value="1">
+                        <label class="form-check-label" for="inlineCheckbox1">Part-Time Student</label>
+                    </div>
+                }
+                @if (rsreg.intern == "1")
+                {
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="intern" value="1" checked>
+                        <label class="form-check-label" for="inlineCheckbox1">On Co-op</label>
+                    </div>
+                }
+                else
+                {
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="intern" value="1">
+                        <label class="form-check-label" for="inlineCheckbox1">On Co-op</label>
+                    </div>
+                }
+
+                @if (rsreg.looking == "1")
+                {
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="looking" value="1" checked>
+                        <label class="form-check-label" for="inlineCheckbox1">Looking For Full-Time</label>
+                    </div>
+                }
+                else
+                {
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="looking" value="1">
+                        <label class="form-check-label" for="inlineCheckbox1">Looking For Full-Time</label>
+                    </div>
+                }
+                @if (rsreg.coop == "1")
+                {
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="coop" value="1" checked>
+                        <label class="form-check-label" for="inlineCheckbox1">Looking For Co-op</label>
+                    </div>
+                }
+                else
+                {
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="coop" value="1">
+                        <label class="form-check-label" for="inlineCheckbox1">Looking For Co-op</label>
+                    </div>
+                }
+
+
+                <div class="form-group">
+                    <label for="school" style="float:left"><b>University</b></label>
+                    <select name="school" class="custom-select">
+                        @if (rsreg.school != null)
+                        {
+                            <option value="@rsreg.school" selected>@rsreg.school</option>
+                        }
+                        else
+                        {
+                            <option selected>University</option>
+                        }
+                        <option>University of Toronto</option>
+                        <option>Simon Fraser University</option>
+                        <option>University of BC</option>
+                        <option>BCIT</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label style="float:left"><b>University Degree*</b></label>
+                    <select name="degree" class="custom-select" required>
+                        @if (rsreg.degree != null)
+                        {
+                            <option value="@rsreg.degree" selected>@rsreg.degree</option>
+                        }
+                        else
+                        {
+                            <option value="" selected>Choose a Degree</option>
+                        }
+                        <option>Engineer Science</option>
+                        <option>Areospace Engineer</option>
+                        <option>Biomedical Engineer</option>
+                        <option>Electronics Engineer</option>
+                        <option>Electrical Engineer</option>
+                        <option>Systems Engineer</option>
+                        <option>Civil Engineer</option>
+                        <option>Computer Engineer</option>
+                        <option>Computer Science</option>
+                        <option>Mechanical Engineer</option>
+                        <option>Mechatronics Engineer</option>
+                        <option>Physics Engineer</option>
+                        <option>Bachelor of Business Administration</option>
+
+                    </select>
+                    @if (rsreg.degree == "Bachelor of Business Administration")
+                    {
+                        <br /><h6>Select your concentration. You may select more than one.</h6>
+                        if (rsreg.accounting == "1")
+                        {
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="accounting" value="1" checked>
+                                <label class="form-check-label" for="inlineCheckbox1">Accounting</label>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="accounting" value="1">
+                                <label class="form-check-label" for="inlineCheckbox1">Accounting</label>
+                            </div>
+                        }
+                        if (rsreg.entre == "1")
+                        {
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="entre" value="1" checked>
+                                <label class="form-check-label" for="inlineCheckbox1">Entrepreneurship & Innovation</label>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="entre" value="1">
+                                <label class="form-check-label" for="inlineCheckbox1">Entrepreneurship & Innovation</label>
+                            </div>
+                        }
+                        if (rsreg.finance == "1")
+                        {
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="finance" value="1" checked>
+                                <label class="form-check-label" for="inlineCheckbox1">Finance</label>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="finance" value="1">
+                                <label class="form-check-label" for="inlineCheckbox1">Finance</label>
+                            </div>
+                        }
+                        if (rsreg.hr == "1")
+                        {
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="hr" value="1" checked>
+                                <label class="form-check-label" for="inlineCheckbox1">Human Resource Management</label>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="hr" value="1">
+                                <label class="form-check-label" for="inlineCheckbox1">Human Resource Management</label>
+                            </div>
+                        }
+                        if (rsreg.international == "1")
+                        {
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="international" value="1" checked>
+                                <label class="form-check-label" for="inlineCheckbox1">International Business</label>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="international" value="1">
+                                <label class="form-check-label" for="inlineCheckbox1">International Business</label>
+                            </div>
+                        }
+                        if (rsreg.management == "1")
+                        {
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="management" value="1" checked>
+                                <label class="form-check-label" for="inlineCheckbox1">Management Information Systems</label>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="management" value="1">
+                                <label class="form-check-label" for="inlineCheckbox1">Management Information Systems</label>
+                            </div>
+                        }
+                        if (rsreg.operations == "1")
+                        {
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="operations" value="1" checked>
+                                <label class="form-check-label" for="inlineCheckbox1">Operations Management</label>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="operations" value="1">
+                                <label class="form-check-label" for="inlineCheckbox1">Operations Management</label>
+                            </div>
+                        }
+                        if (rsreg.marketing == "1")
+                        {
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="marketing" value="1" checked>
+                                <label class="form-check-label" for="inlineCheckbox1">Marketing</label>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="marketing" value="1">
+                                <label class="form-check-label" for="inlineCheckbox1">Marketing</label>
+                            </div>
+                        }
+                        if (rsreg.strategic == "1")
+                        {
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="strategic" value="1" checked>
+                                <label class="form-check-label" for="inlineCheckbox1">Strategic Analysis</label>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="strategic" value="1">
+                                <label class="form-check-label" for="inlineCheckbox1">Strategic Analysis</label>
+                            </div>
+                        }
+                    }
+                </div>
+                <div class="form-group">
+                    <label style="float:left"><b>Minor</b></label>
+                    <select name="minor" class="custom-select">
+                        @if (rsreg.minor != null)
+                        {
+                            <option value="@rsreg.minor" selected>@rsreg.minor</option>
+                        }
+                        else
+                        {
+                            <option value="" selected>Choose a Minor</option>
+                        }
+                        <option>Business</option>
+                        <option>Mathematics</option>
+                        <option>Cognitive Science</option>
+                        <option>Computing Science</option>
+                        <option>Choose a Minor</option>
+
+
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label style="float:left"><b>GPA<b /></label>
+                    <input type="text" maxlength="4" class="form-control" name="gpa" value="@rsreg.gpa" placeholder="GPA (Optional)" autocomplete="off">
+                </div>
+
+                <label style="float:left"><b>Graduation Date</b></label>
+                <div class="input-group date" data-provide="datepicker">
+                    <input type="text" name="graddate" class="form-control mb-3" value="@if (rsreg.graddate != null) {@rsreg.graddate.ToString("MMM d, yyyy")}" placeholder="Graduation Date">
+                    <div class="input-group-addon">
+                        <span class="glyphicon glyphicon-th"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label style="float:left"><b>Courses Remaining/Graduated</b></label>
+
+                    <select name="coursenumber" class="custom-select">
+                        @if (rsreg.coursenumber != null)
+                        {
+                            <option value=" @rsreg.coursenumber" selected> @rsreg.coursenumber</option>
+                        }
+                        else
+                        {
+                            <option selected>Choose a number/graduated</option>
+                        }
+                        <option>Graduated</option>
+                        <option>1</option>
+                        <option>2</option>
+                        <option>3</option>
+                        <option>4</option>
+                        <option>5</option>
+                        <option>6</option>
+                        <option>7</option>
+                        <option>8</option>
+                        <option>9</option>
+                        <option>10</option>
+                        <option>11</option>
+                        <option>12</option>
+                        <option>13</option>
+                        <option>14</option>
+                        <option>15</option>
+                        <option>16</option>
+                        <option>17</option>
+                        <option>18</option>
+                        <option>19</option>
+                        <option>20</option>
+                        <option>21</option>
+                        <option>22</option>
+                        <option>23</option>
+                        <option>24</option>
+                        <option>25</option>
+                        <option>26</option>
+                        <option>27</option>
+                        <option>28</option>
+                        <option>29</option>
+                        <option>30</option>
+                    </select>
+
+
+                </div>
+
+                <div class="form-row">
+                    <label class="text-left"><b>Phone Number</b></label>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <input type="text" name="phonenum1" maxlength="3" class="form-control " value="@rsreg.phonenum1">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" name="phonenum2" maxlength="3" class="form-control " value="@rsreg.phonenum2">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" name="phonenum3" maxlength="4" class="form-control " value="@rsreg.phonenum3">
+                    </div>
+                    <!-- <input type="text" maxlength="15" class="form-control" name="phonenum" value="" placeholder="Phone Number" autocomplete="off">-->
+                </div>
+
+
+                <div class="form-group">
+                    <label style="float:left">Current Residence</label>
+                    <select name="currentcountry" class="custom-select mb-2">
+                        @if (rsreg.currentcountry != null)
+                        {
+                            <option value="@rsreg.currentcountry" selected>@rsreg.currentcountry</option>
+                        }
+                        else
+                        {
+                            <option selected>Country</option>
+                        }
+
+                        <option>Canada</option>
+                        <option>United States</option>
+                        <option>Mexico</option>
+                        <option>India</option>
+                    </select>
+
+                    <div class="form-group">
+
+                        <input type="text" class="form-control" name="currentcity" value="@rsreg.currentcity" placeholder="City" autocomplete="off">
+                    </div>
+
+                </div>
+
+
+                <div class="form-group">
+                    <label style="float:left">About Summary</label>
+
+                    <textarea name="deginfo" maxlength="450" class="form-control" rows="6" placeholder="Describe your degree and job interest*" required>@if (rsreg.deginfo != null){@Html.Raw(rsreg.deginfo)}</textarea>
+
+                </div>
+                <input type="hidden" name="saveprofile" value="1">
+                <button class="btn btn-outline-info" type="submit">Save</button>
+                <br />
+                <h5 class="@rsreg.profcolor">Don't forget to fill out the rest!</h5>
+                <a role="button" href="@Href("~/skills/" +rsreg.idreg)" class="btn btn-outline-info">Skills</a>
+                <a role="button" href="@Href("~/jobexp/" + rsreg.idreg)" class="btn btn-outline-info">Job Experience</a>
+                <a role="button" href="@Href("~/projectexp/" + rsreg.idreg)" class="btn btn-outline-info">Project Experience</a>
+                <a role="button" href="@Href("~/extracur/" +vblidprofile)" class="btn btn-outline-info">Extracurricular</a>
+            </form>
+
+
+        }
+        else
+        {
+            Response.Redirect("~/logout", false); //better to the logout page
+            return;
+        }
+    }
+
+
+}

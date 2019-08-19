@@ -1,0 +1,314 @@
+@{
+    Layout = "~/shared/_Layout.cshtml";
+    using (var db = Database.Open("Projectfriends"))
+    {
+        int vblidprofile = UrlData[0].AsInt();
+        if (Request.Cookies["newbiecookie"] != null)
+        {
+            var rsreg = db.QuerySingle("select signin.*, profile.*, extracur.* from signin INNER JOIN profile ON signin.idreg = profile.idregprof LEFT JOIN extracur ON profile.idregprof = extracur.idregextra where signin.idreg=@0", Request.Cookies["newbiecookie"].Value.AsInt());
+
+            if (rsreg == null)
+            {
+                Response.Redirect("~/login", false); //better to the logout page
+                return;
+            }
+            if (rsreg.admin == 1)
+            {
+                rsreg = db.QuerySingle("select signin.*, profile.*, extracur.* from signin INNER JOIN profile ON signin.idreg = profile.idregprof LEFT JOIN extracur ON signin.idreg = extracur.idregextra where signin.idreg=@0", vblidprofile);
+                if (rsreg == null)
+                {
+                    Response.Redirect("~/memberlist", false);
+                    return;
+                }
+            }
+
+            if (IsPost)
+            {
+                var vblextrastartdate1 = Request.Form["extrastartdate1"];
+                var vblextrastartdate2 = Request.Form["extrastartdate2"];
+                var vblextrastartdate3 = Request.Form["extrastartdate3"];
+                var vblextraenddate1 = Request.Form["extraenddate1"];
+                var vblextraenddate2 = Request.Form["extraenddate2"];
+                var vblextraenddate3 = Request.Form["extraenddate3"];
+                var vblextratitle1 = Request.Form["extratitle1"];
+                var vblextratitle2 = Request.Form["extratitle2"];
+                var vblextratitle3 = Request.Form["extratitle3"];
+                var vblextracompany1 = Request.Form["extracompany1"];
+                var vblextracompany2 = Request.Form["extracompany2"];
+                var vblextracompany3 = Request.Form["extracompany3"];
+                var vblextrapresent1 = Request.Form["extrapresent1"];
+                var vblextrapresent2 = Request.Form["extrapresent2"];
+                var vblextrapresent3 = Request.Form["extrapresent3"];
+                var vblextrades1 = Request.Unvalidated("extrades1");
+                if (!vblextrades1.IsEmpty())
+                {
+                    vblextrades1 = vblextrades1.ToString().AsSafeHtml();
+                }
+                var vblextrades2 = Request.Unvalidated("extrades2");
+                if (!vblextrades2.IsEmpty())
+                {
+                    vblextrades2 = vblextrades2.ToString().AsSafeHtml();
+                }
+                var vblextrades3 = Request.Unvalidated("extrades3");
+                if (!vblextrades3.IsEmpty())
+                {
+                    vblextrades3 = vblextrades3.ToString().AsSafeHtml();
+                }
+
+
+                if (vblextratitle1.Length > 49)
+                { vblextratitle1 = vblextratitle1.Substring(0, 49); }
+                if (vblextratitle2.Length > 49)
+                { vblextratitle2 = vblextratitle2.Substring(0, 49); }
+                if (vblextratitle3.Length > 49)
+                { vblextratitle3 = vblextratitle3.Substring(0, 49); }
+                if (vblextracompany1.Length > 49)
+                { vblextracompany1 = vblextracompany1.Substring(0, 49); }
+                if (vblextracompany2.Length > 49)
+                { vblextracompany2 = vblextracompany2.Substring(0, 49); }
+                if (vblextracompany3.Length > 49)
+                { vblextracompany3 = vblextracompany3.Substring(0, 49); }
+                if (vblextrades1.Length > 2990)
+                { vblextrades1 = vblextrades1.Substring(0, 2990); }
+                if (vblextrades2.Length > 2990)
+                { vblextrades2 = vblextrades2.Substring(0, 2990); }
+                // if (vblextrades3.Length > 2990)
+                //{ vblextrades3 = vblextrades3.Substring(0, 2990); }
+
+                if (vblextrastartdate1.IsEmpty())
+                { vblextrastartdate1 = null; }
+                if (vblextrastartdate2.IsEmpty())
+                { vblextrastartdate2 = null; }
+                if (vblextrastartdate3.IsEmpty())
+                { vblextrastartdate3 = null; }
+                if (vblextraenddate1.IsEmpty())
+                { vblextraenddate1 = null; }
+                if (vblextraenddate2.IsEmpty())
+                { vblextraenddate2 = null; }
+                if (vblextraenddate3.IsEmpty())
+                { vblextraenddate3 = null; }
+
+                var rscheck = db.QuerySingle("select idregextra from extracur where idregextra = @0", rsreg.idreg);
+
+                if (rscheck != null)
+                {
+                    var updatefirst = "UPDATE extracur SET extrastartdate1=@0,extrastartdate2=@1,extrastartdate3=@2, extraenddate1=@3,extraenddate2=@4,extraenddate3=@5,extratitle1=@6,extratitle2=@7,extratitle3=@8,extracompany1=@9,extracompany2=@10,extracompany3=@11,extrades1=@12,extrades2=@13,extrades3=@14,extrapresent1=@15,extrapresent2=@16,extrapresent3=@17 where idregextra=@18";
+                    db.Execute(updatefirst, vblextrastartdate1, vblextrastartdate2, vblextrastartdate3, vblextraenddate1, vblextraenddate2, vblextraenddate3, vblextratitle1, vblextratitle2, vblextratitle3, vblextracompany1, vblextracompany2, vblextracompany3, vblextrades1, vblextrades2, vblextrades3,vblextrapresent1,vblextrapresent2,vblextrapresent3, rsreg.idreg);
+                    // if the updete is successfull then redicet the page to the sam page
+                    Response.Redirect("~/extracur/" + rsreg.idregextra, false);
+                    return;
+                }
+
+                else
+                {
+                    var insertfirst = "insert into extracur (idregextra,extrastartdate1,extrastartdate2,extrastartdate3,extraenddate1,extraenddate2,extraenddate3,extratitle1,extratitle2,extratitle3,extracompany1,extracompany2,extracompany3,extrades1,extrades2,extrades3,extrapresent1,extrapresent2,extrapresent3) Values(@0,@1,@2,@3,@4,@5,@6,@7,@8,@9,@10,@11,@12,@13,@14,@15,@16,@17,@18)";
+                    db.Execute(insertfirst, rsreg.idreg, vblextrastartdate1, vblextrastartdate2, vblextrastartdate3, vblextraenddate1, vblextraenddate2, vblextraenddate3, vblextratitle1, vblextratitle2, vblextratitle3, vblextracompany1, vblextracompany2, vblextracompany3, vblextrades1, vblextrades2, vblextrades3,vblextrapresent1,vblextrapresent2,vblextrapresent3);
+                    Response.Redirect("~/extracur/" + rsreg.idreg, false);
+                    return;
+                }
+            }
+
+<form method="post" class="needs-validation form1000" novalidate>
+    <a role="button" href="@Href("~/skills/" + vblidprofile )" class="btn btn-outline-info">Technical & Language Skills</a>
+    <a role="button" href="@Href("~/editprofile/" + vblidprofile)" class="btn btn-outline-info">Personal Profile</a>
+    <a role="button" href="@Href("~/jobexp/" + vblidprofile)" class="btn btn-outline-info">Job Experience</a>
+    <a role="button" href="@Href("~/projectexp/" +vblidprofile)" class="btn btn-outline-info">Project Experience</a>
+    <a role="button" href="@Href("~/extracur/" +vblidprofile)" class="btn btn-info">Extracurricular</a>
+    <a role="button" href="@Href("~/references/" +vblidprofile)" class="btn btn-outline-info">References</a>
+    <a role="button" href="@Href("~/profile/" + vblidprofile)" class="btn btn-outline-info">Profile</a>
+    <br /><br />
+    <h3 class=" @rsreg.profcolor">Extracurricular</h3>
+    <h5 class="mb-2">You may fill out as many fields as you desire. <br /> (If you require more fields, let us know through the Contact form)</h5>
+    <h5 class="mb-2 text-primary">In the description field, press enter where you want a bullet point to show. It will appear after you save and displayed as a list on the profile page and resume.<br /><span class="text-danger">Note: May have to save twice for it to appear as a list on profile.</span></h5>
+
+
+
+    <div class="col-12 ">
+        <p><b>Extracurricular 1</b></p>
+        <table class="table table-borderless table-sm">
+            <tr>
+                <td colspan="2">
+                    <input type="text" maxlength="49" class="form-control" name="extratitle1" value="@rsreg.extratitle1" placeholder="Job Title" autocomplete="off">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <input type="text" maxlength="49" class="form-control" name="extracompany1" value="@rsreg.extracompany1" placeholder="Company Name" autocomplete="off">
+                </td>
+
+            </tr>
+            <tr>
+                <td>
+                    <div class="input-group date " data-provide="datepicker">
+                        <input type="text" name="extrastartdate1" class="form-control" value="@if (rsreg.extrastartdate1 != null)
+                                    {@rsreg.extrastartdate1.ToString("MMM d, yyyy")}" placeholder="Start Date">
+                        <div class="input-group-addon">
+                            <span class="glyphicon glyphicon-th"></span>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="input-group date" data-provide="datepicker">
+                        <input type="text" name="extraenddate1" class="form-control" value="@if (rsreg.extraenddate1 != null)
+                                    {@rsreg.extraenddate1.ToString("MMM d, yyyy")}" placeholder="End Date">
+                        <div class="input-group-addon">
+                            <span class="glyphicon glyphicon-th"></span>
+                        </div>
+                    </div>
+                    @if (rsreg.extrapresent1 == "1")
+                    {
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="extrapresent1" value="1" checked>
+                            <label class="form-check-label" for="inlineCheckbox1"><b>Present</b></label>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="extrapresent1" value="1">
+                            <label class="form-check-label" for="inlineCheckbox1"><b>Present</b></label>
+                        </div>
+                    }
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="2">
+                    <textarea name="extrades1" maxlength="2900" class="form-control" rows="8" placeholder="Describe your activity">@if (rsreg.extrades1 != null) {@Html.Raw(rsreg.extrades1.Replace("\r\n", "    • "))}</textarea>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="col-12" style="background-color: aliceblue">
+        <p><b>Extracurricular 2</b></p>
+        <table class="table table-borderless table-sm">
+            <tr>
+                <td colspan="2">
+                    <input type="text" maxlength="49" class="form-control" name="extratitle2" value="@rsreg.extratitle2" placeholder="Job Title" autocomplete="off">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <input type="text" maxlength="49" class="form-control" name="extracompany2" value="@rsreg.extracompany2" placeholder="Company Name" autocomplete="off">
+                </td>
+
+            </tr>
+            <tr>
+                <td>
+                    <div class="input-group date " data-provide="datepicker">
+                        <input type="text" name="extrastartdate2" class="form-control" value="@if (rsreg.extrastartdate2 != null)
+                                    {@rsreg.extrastartdate2.ToString("MMM d, yyyy")}" placeholder="Start Date">
+                        <div class="input-group-addon">
+                            <span class="glyphicon glyphicon-th"></span>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="input-group date" data-provide="datepicker">
+                        <input type="text" name="extraenddate2" class="form-control" value="@if (rsreg.extraenddate2 != null)
+                                    {@rsreg.extraenddate2.ToString("MMM d, yyyy")}" placeholder="End Date">
+                        <div class="input-group-addon">
+                            <span class="glyphicon glyphicon-th"></span>
+                        </div>
+                    </div>
+                    @if (rsreg.extrapresent2 == "1")
+                    {
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="inlineCheckbox2" name="extrapresent2" value="1" checked>
+                            <label class="form-check-label" for="inlineCheckbox2"><b>Present</b></label>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="inlineCheckbox2" name="extrapresent2" value="1">
+                            <label class="form-check-label" for="inlineCheckbox2"><b>Present</b></label>
+                        </div>
+                    }
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="2">
+                    <textarea name="extrades2" maxlength="2900" class="form-control" rows="8" placeholder="Describe your activity">@if (rsreg.extrades2 != null) {@Html.Raw(rsreg.extrades2.Replace("\r\n", "    • "))}</textarea>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+
+    <div class="col-12">
+        <p><b>Extracurricular 3</b></p>
+        <table class="table table-borderless table-sm">
+            <tr>
+                <td colspan="2">
+                    <input type="text" maxlength="49" class="form-control" name="extratitle3" value="@rsreg.extratitle3" placeholder="Job Title" autocomplete="off">
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <input type="text" maxlength="49" class="form-control" name="extracompany3" value="@rsreg.extracompany3" placeholder="Company Name" autocomplete="off">
+                </td>
+
+            </tr>
+            <tr>
+                <td>
+                    <div class="input-group date " data-provide="datepicker">
+                        <input type="text" name="extrastartdate3" class="form-control" value="@if (rsreg.extrastartdate3 != null)
+                                    {@rsreg.extrastartdate3.ToString("MMM d, yyyy")}" placeholder="Start Date">
+                        <div class="input-group-addon">
+                            <span class="glyphicon glyphicon-th"></span>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="input-group date" data-provide="datepicker">
+                        <input type="text" name="extraenddate3" class="form-control" value="@if (rsreg.extraenddate3 != null)
+                                    {@rsreg.extraenddate3.ToString("MMM d, yyyy")}" placeholder="End Date">
+                        <div class="input-group-addon">
+                            <span class="glyphicon glyphicon-th"></span>
+                        </div>
+
+                    </div>
+                    @if (rsreg.extrapresent3 == "1")
+                    {
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="inlineCheckbox3" name="extrapresent3" value="1" checked>
+                            <label class="form-check-label" for="inlineCheckbox3"><b>Present</b></label>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="inlineCheckbox3" name="extrapresent3" value="1">
+                            <label class="form-check-label" for="inlineCheckbox3"><b>Present</b></label>
+                        </div>
+                    }
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="2">
+                    <textarea name="extrades3" maxlength="2900" class="form-control" rows="8" placeholder="Describe your activity">@if (rsreg.extrades3 != null) {@Html.Raw(rsreg.extrades3.Replace("\r\n", "    • "))}</textarea>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+
+    <button class="btn btn-outline-info" type="submit">Save</button>
+
+
+
+
+</form>
+        
+        }
+        else
+        {
+            Response.Redirect("~/logout", false); //better to the logout page
+            return;
+        }
+    }
+}

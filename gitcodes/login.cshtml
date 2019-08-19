@@ -1,0 +1,53 @@
+@{
+    Layout = "~/shared/_Layout.cshtml";
+    Page.Title = "Login";
+    using (var db = Database.Open("Projectfriends"))
+    {
+        int vblreturnUrl = Request.QueryString["returnUrl"].AsInt();
+        if (Request.Cookies["newbiecookie"] != null)
+        {
+            if (vblreturnUrl != 0) {
+                if (vblreturnUrl == 1)
+                {
+                    Response.Redirect("~/editporfile");
+                }
+            }
+        }
+
+        var vblemail = Request.Form["email"];
+        var vblpassword = Request.Form["password"];
+        if (!vblemail.IsEmpty() && !vblpassword.IsEmpty())
+        {
+            var rsreg = db.QuerySingle("select * from signin where regemail = @0 and regpass = @1", vblemail, vblpassword);
+            if (rsreg != null)
+            {
+
+                Response.Cookies["newbiecookie"].Value = rsreg.idreg.ToString();
+                Response.Cookies["newbiecookie"].Expires = DateTime.Now.AddMonths(6);
+                //if the login in correctly we redirect back to the index page
+                Response.Redirect("~/", false);
+                return;
+            }
+        }
+     <h3 style="color:rebeccapurple">Please login above.</h3>
+                
+                <img src="@Href("~/images/cryingemoji.png")" class="img-fluid rounded-circle imageCliper mt-3" alt="Responsive image">
+                
+               <h4 class="mt-4">
+                   <span style="color:rebeccapurple">Perhaps you:</span>
+                   <span> <a href="@Href("~/forgotpass")"> Forgot Password?</a></span>
+               </h4>
+                
+
+                <div class="row mt-3">
+                    <div class="col p-4" style="background-color:darkslategray;"></div>
+                </div>
+          
+
+
+
+
+
+
+        }
+    }

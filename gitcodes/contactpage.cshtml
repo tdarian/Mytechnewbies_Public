@@ -1,0 +1,104 @@
+
+
+@{
+    Layout = "~/shared/_Layout.cshtml";
+    using (var db = Database.Open("Projectfriends"))
+    {
+
+        <!--put the vbls-->
+        if (IsPost)
+        {
+            var vblfullname = Request.Form["fullname"];
+            var vblemail = Request.Form["email"];
+            var vblsubject = Request.Form["subject"];
+            var vblcomments = Request.Form["message"];
+            var errorMessage = "";
+
+            if (!(vblemail.IsEmpty() && vblsubject.IsEmpty()))
+            {
+                try
+                {
+                    WebMail.From = "admin@mytechnewbies.com";
+                    WebMail.Send(
+                    to: "admin@mytechnewbies.com",
+                    subject: vblsubject,
+                    body: "<html><head><style><!--a{text-decoration:none}//--></style></head><font size='2' face='Verdana, Geneva, sans-serif'><u>"
+                    + DateTime.Now.ToString("MMM d, yyyy") + "</u><br>From: " + vblfullname +
+                    "<br>Email: " + vblemail + "<br>" + vblcomments.Replace("\n", "<br>"));
+                }
+                catch (Exception ex)
+                {
+                    errorMessage = ex.Message;
+                    <text> @errorMessage <br />error</text>
+                }
+            <h4 class="text-success">Thank you for your Message. Our administrator will be in touch soon.</h4>
+
+        }
+    }
+    Page.Title = "Contact";
+    <div class="container">
+
+
+        <h1 style="color:rebeccapurple;">Let's Talk Tech!</h1>
+        <br />
+        <p>Ask any questions or concerns you may have. If you have any suggestions about design or added features for your profile, please let us know!</p>
+
+        <form method="post" class="needs-validation form1000" novalidate>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label for="form_lastname">Full Name *</label>
+                        <input type="text" maxlength="45" name="fullname" class="form-control" placeholder="Please enter your full name*" required>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="form_email">Email *</label>
+                        <input type="email" name="email" class="form-control" placeholder="Please enter your email*" required>
+
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="form_need">Subject *</label>
+                        <input type="text" name="subject" class="form-control" placeholder="Subject" required>
+
+
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label for="form_message">Message *</label>
+                        <textarea name="message" class="form-control" placeholder="Message for me*" rows="4" required></textarea>
+
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <input type="submit" class="btn btn-outline-info" value="Send message">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <p>
+                        <strong>*</strong> These fields are required.
+                    </p>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col p-4 " style="background-color:darkslategray">
+
+                </div>
+            </div>
+        </form>
+    </div>
+
+}
+}

@@ -1,0 +1,49 @@
+
+@{
+    <style>
+        .imageCliper {
+            height: auto;
+            width: 150px;
+            overflow: hidden;
+        }
+    </style>
+
+    Page.robots = "All";//this means robots can search this page
+    Page.Title = "About MyTechNewbies by Tiffany Darian";
+    Page.description = "Students or recent graduates can sometimes find it hard to apply for full time position. Years of previous experience is always required with a background knowledge of many different skills.";
+    Layout = "~/shared/_Layout.cshtml";
+    <div class="container-fluid">
+
+
+        <h1 style="color:rebeccapurple;">Who are MyTechNewbies</h1>
+
+        <p class="text-justify">
+            Current students and/or recent graduates can sometimes find it difficult to begin the process of applying for a work-place opportunity. Years of previous experience is typically perferred with extensive background knowledge and various practical skill sets.
+            MyTechNewbies is a platform that will provide users with a editable resume template to help you begin the process of applying for your next position. As you apply, post the link in the URL section of the application, as most have this option, and they can view your information in more detail; based on the criteria that you are a student or a new graduate.
+        </p>
+
+        <h3 style="color:rebeccapurple;"> Our Team</h3>
+        <br />
+
+                <span style="color: purple">Tiffany Darian</span>
+                <br /><br />
+                <img src="@Href("~/shared/tifany_pic.jpg")"  class="img-fluid rounded-circle img-thumbnail imageCliper" alt="Responsive image">
+                <br /><br />
+                      <span>Systems Engineer <br />(Developer, Founder, and Designer of MyTechNewbies)</span>
+
+        <br /><br />
+        <div class="row">
+            <div class="col p-4 " style="background-color:darkslategray">
+
+            </div>
+        </div>
+        <ul class="list-group">
+            <li class="list-group-item border-0 text-justify">
+                   </li>
+
+        </ul>
+
+
+    </div>
+
+}
